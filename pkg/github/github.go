@@ -53,8 +53,14 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 
 	ghClient := github.NewClient(httpClient)
 
-	// Support GitHub Enterprise via GITHUB_API_URL env var
-	if apiURL := os.Getenv("GITHUB_API_URL"); apiURL != "" {
+	// Support GitHub Enterprise via GITHUB_API_URL env var.
+	// Also accept GITHUB_ENTERPRISE_URL as a convenient alias.
+	apiURL := os.Getenv("GITHUB_API_URL")
+	if apiURL == "" {
+		apiURL = os.Getenv("GITHUB_ENTERPRISE_URL")
+	}
+
+	if apiURL != "" {
 		var err error
 		ghClient, err = ghClient.WithAuthToken(c.token).WithEnterpriseURLs(apiURL, apiURL)
 		if err != nil {
