@@ -30,7 +30,8 @@ func WithToken(token string) ClientOption {
 
 // NewClient creates a new GitHub API client with the provided options.
 // If no token is provided via options, it falls back to the GITHUB_TOKEN
-// environment variable.
+// environment variable. For GitHub Enterprise, set GITHUB_API_URL or
+// GITHUB_ENTERPRISE_URL to the base URL of your GitHub Enterprise instance.
 func NewClient(opts ...ClientOption) (*Client, error) {
 	c := &Client{}
 
@@ -90,6 +91,8 @@ func (c *Client) GetAuthenticatedUser(ctx context.Context) (*github.User, error)
 
 // RequireAuth returns an error if the client is not authenticated.
 // This is useful for tools that require authentication to function.
+// Note: unauthenticated requests are subject to a much lower rate limit
+// (60 requests/hour vs 5000 requests/hour for authenticated requests).
 func (c *Client) RequireAuth() error {
 	if !c.IsAuthenticated() {
 		return fmt.Errorf("authentication required: set GITHUB_TOKEN environment variable or provide a token")
