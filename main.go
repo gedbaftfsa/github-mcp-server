@@ -49,8 +49,9 @@ AI assistants and other MCP clients.`,
 
 	cmd.Flags().StringVar(&token, "token", "", "GitHub personal access token (or set GITHUB_TOKEN env var)")
 	cmd.Flags().StringVar(&logFile, "log-file", "", "Path to log file (default: stderr)")
-	// Default to read-only mode for safety; use --read-only=false to enable write operations.
-	cmd.Flags().BoolVar(&readOnly, "read-only", true, "Restrict server to read-only operations only")
+	// Default to read-write mode since this is my personal fork and I frequently
+	// need write operations. Override with --read-only=true to restrict to reads.
+	cmd.Flags().BoolVar(&readOnly, "read-only", false, "Restrict server to read-only operations only")
 
 	return cmd
 }
@@ -82,6 +83,8 @@ func runServer(ctx context.Context, token, logFile string, readOnly bool) error 
 	fmt.Fprintf(os.Stderr, "GitHub MCP Server %s starting (stdio transport)\n", Version)
 	if readOnly {
 		fmt.Fprintf(os.Stderr, "Running in read-only mode\n")
+	} else {
+		fmt.Fprintf(os.Stderr, "Running in read-write mode\n")
 	}
 
 	if err := srv.ServeStdio(ctx); err != nil {
